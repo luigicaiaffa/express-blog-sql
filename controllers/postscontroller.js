@@ -1,33 +1,21 @@
 // # Configurazione
-const express = require("express");
-const posts = require("../data/db");
+const connection = require("../data/db");
 
 // # Rotte
-// index
+// *index
 function index(req, res) {
-  // valori in arrivo
-  const { tag, title } = req.query;
+  const sql = `SELECT * FROM blog.posts`;
 
-  // copia dell'array posts
-  let filteredPosts = [...posts];
-
-  // controllo param tag
-  if (tag) {
-    filteredPosts = filteredPosts.filter((post) => post.tags.includes(tag));
-  }
-
-  // controllo param title
-  if (title) {
-    filteredPosts = filteredPosts.filter((post) =>
-      post.title.toLowerCase().includes(title.toLowerCase())
-    );
-  }
-
-  // res.json("Lista dei post");
-  res.json(filteredPosts);
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    res.json(results);
+  });
 }
 
-// show
+// *show
 function show(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
@@ -53,7 +41,7 @@ function show(req, res) {
   res.json(selectedPost);
 }
 
-// store
+// *store
 function create(req, res) {
   // id auto gen
   const id = posts.at(-1).id + 1;
@@ -94,7 +82,7 @@ function create(req, res) {
   res.status(201).json(newPost);
 }
 
-// update
+// *update
 function update(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
@@ -151,7 +139,7 @@ function update(req, res) {
   res.json(selectedPost);
 }
 
-// modify
+// *modify
 function modify(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
@@ -236,7 +224,7 @@ function modify(req, res) {
   res.json(selectedPost);
 }
 
-// destroy
+// *destroy
 function destroy(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
