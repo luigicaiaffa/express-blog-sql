@@ -4,13 +4,14 @@ const connection = require("../data/db");
 // # Rotte
 // *index
 function index(req, res) {
-  const sql = `SELECT * FROM blog.posts`;
+  const sql = `SELECT * FROM posts`;
 
   connection.query(sql, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(500).json({ error: "Database query failed" });
     }
+
     res.json(results);
   });
 }
@@ -229,30 +230,16 @@ function destroy(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
 
-  // errore
-  if (isNaN(id)) {
-    const err = new Error("id not valid");
-    err.code = 400;
-    throw err;
-  }
+  const sql = "DELETE FROM posts WHERE id = ?";
 
-  // post con id richiesto e suo indice
-  const selectedPost = posts.find((post) => post.id === id);
-  const postIndex = posts.indexOf(selectedPost);
+  connection.query(sql, [id], (err) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
 
-  // errore
-  if (!selectedPost) {
-    const err = new Error("id not found");
-    err.code = 404;
-    throw err;
-  }
-
-  posts.splice(postIndex, 1);
-  console.log(`// deleted element id: ${id} //`);
-  console.log(posts);
-
-  res.json(posts);
-  res.sendStatus(204);
+    res.sendStatus(204);
+  });
 }
 
 module.exports = { index, show, create, update, modify, destroy };
