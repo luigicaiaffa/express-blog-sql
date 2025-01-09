@@ -21,25 +21,20 @@ function show(req, res) {
   // id richiesto
   const id = parseInt(req.params.id);
 
-  // errore
-  if (isNaN(id)) {
-    const err = new Error("Id not valid");
-    err.code = 400;
-    throw err;
-  }
+  const sql = "SELECT * FROM posts WHERE id = ?";
 
-  // post con id richiesto
-  const selectedPost = posts.find((post) => post.id === id);
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
 
-  // errore
-  if (!selectedPost) {
-    const err = new Error("id not found");
-    err.code = 404;
-    throw err;
-  }
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
+    }
 
-  // res.json(`Post con id: ${id}`)
-  res.json(selectedPost);
+    res.json(results[0]);
+  });
 }
 
 // *store
